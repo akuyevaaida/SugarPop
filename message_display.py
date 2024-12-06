@@ -2,7 +2,7 @@
 # Module Name: Sugar Pop Message Display Module
 # Project: Sugar Pop Program
 # Date: Nov 17, 2024
-# By: Brett W. Huffman
+# By: Brett W. Huffman 
 # Description: The Message Display implementation of the sugar pop game
 #############################################################
 import pygame as pg
