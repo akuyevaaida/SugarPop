@@ -27,7 +27,7 @@ class Sound:
         self.load_sounds()
 
     def load_sounds(self):
-        ''' Load all sounds from file paths. '''
+        ''' Load all sounds from file paths.'''
         
         self.sounds = {
             "bucket_explode": mixer.Sound(SOUND_BUCKET_EXPLODE),

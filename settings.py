@@ -28,6 +28,9 @@ SOUND_BUCKET_EXPLODE = "./sounds/bucket_explode.mp3"
 SOUND_SUGAR_ADD = "./sounds/sugar_add.mp3"
 SOUND_LEVEL_COMPLETE = "./sounds/level_complete.mp3"
 
+# Hud settings
+HUD_WIDTH = 170
+HUD_HEIGHT = 20
 
 # User Defined Events
 START_FLOW = pg.USEREVENT + 1
