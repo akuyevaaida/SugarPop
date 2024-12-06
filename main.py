@@ -2,7 +2,7 @@
 # Module Name: Sugar Pop Main Module
 # Project: Sugar Pop Program
 # Date: Nov 17, 2024
-# By: Brett W. Huffman
+# By: Brett W. Huffman & Aida Akuyeva
 # Description: The main implementation of the sugar pop game
 #############################################################
 
@@ -17,6 +17,8 @@ import sugar_grain
 import bucket
 import level
 import message_display
+from sound import Sound
+from hud import Hud
 
 class Game:
     def __init__(self) -> None:
@@ -24,15 +26,17 @@ class Game:
         self.screen = pg.display.set_mode(RES)
         self.clock = pg.time.Clock()
         self.iter = 0
-        
-        # Initialize font for HUD
-        self.font = pg.font.SysFont(None, 36)  # Default font, size 36
+    
+        self.sound = Sound() # Initialize Sound
+        self.hud = Hud() # Initialize Hud 
 
         # Create a Pymunk space with gravity
         self.current_level = 0 # Start game at 0
         self.level_complete = False
         self.space = pymunk.Space()
-        self.space.gravity = (0, -9)  # Gravity pointing downwards in Pymunk's coordinate system
+        self.gravity_reversed = False  # Variable to track gravity direction
+        self.space.gravity = (0, -4.8)  # Gravity pointing downwards in Pymunk's coordinate system
+
         # Iterations defaults to 10. Higher is more accurate collison detection
         self.space.iterations = 30 
         self.is_paused = False
@@ -146,16 +150,22 @@ class Game:
             
             # Calculate buckets count by counting each grain's position
             # First, explode or reset the counter on each bucket
-            for bucket in self.buckets:
-                if bucket.count >= bucket.needed_sugar:
+            # Calculate buckets count by counting each grain's position
+           # First, explode or reset the counter on each bucket
+            for i in range(len(self.buckets)-1, -1, -1):
+               bucket = self.buckets[i]
+               if bucket.count >= bucket.needed_sugar:
                     bucket.explode(self.sugar_grains)
+                    del self.buckets[i]
                     # If all the buckets are gone, level up!
                     if not self.level_complete and self.check_all_buckets_exploded():
                         self.level_complete = True
+                        self.sound.play_sound("level_complete") # Play the level complete sound when level is completed
                         self.message_display.show_message("Level Complete!", 2)
                         pg.time.set_timer(LOAD_NEW_LEVEL, 2000)  # Schedule next level load
-                else:
+               else:
                     bucket.count_reset()
+
             # Count the grains in the un-exploded buckets
             for grain in self.sugar_grains:
                 for bucket in self.buckets:
@@ -166,17 +176,13 @@ class Game:
                 # Create new sugar to drop
                 new_sugar = sugar_grain.sugar_grain(self.space, self.level_spout_position[0], self.level_spout_position[1], 0.1)
                 self.sugar_grains.append(new_sugar)
+
+                # Play the sugar add sound when sugar starts falling
+                self.sound.play_sound("sugar_add")
+
                 # Check if it's time to stop
                 if len(self.sugar_grains) >= self.total_sugar_count:
                     self.level_grain_dropping = False
-
-    def draw_hud(self):
-        """Draw the HUD displaying the number of grains."""
-        # Prepare the text surface
-        if self.total_sugar_count:
-            text_surface = self.font.render(f'{self.total_sugar_count - len(self.sugar_grains)}', True, (255, 255, 255))
-            # Draw the text surface on the screen
-            self.screen.blit(text_surface, (10, 10))  # Position at top-left corner
 
     def draw(self):
         '''Draw the overall game. Should call individual item draw() methods'''
@@ -216,14 +222,23 @@ class Game:
                 5
             )
         
-        # Draw the heads-up display
-        self.draw_hud()
+        # Draw gravity direction and HUD
+        self.hud.draw(self.screen, self.total_sugar_count, len(self.sugar_grains), self.buckets, self.gravity_reversed)
 
         # Show any messages needed        
         self.message_display.draw(self.screen)
 
         # Update the display
         pg.display.update()
+
+    def reverse_gravity(self):
+        ''' Reverse the gravity when the key is pressed.'''
+        if self.gravity_reversed:
+            self.space.gravity = (0, -4.8)  # Gravity pointing down
+            self.gravity_reversed = False
+        else:
+            self.space.gravity = (0, 4.8)  # Gravity pointing up
+            self.gravity_reversed = True
 
     def check_events(self):
         '''Check for keyboard and mouse events'''
@@ -237,7 +252,6 @@ class Game:
                 self.current_level -= 1
                 pg.time.set_timer(LOAD_NEW_LEVEL, 100)  # Load level
 
-            
             # Implementing a pause
             elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 if self.is_paused:
@@ -281,7 +295,11 @@ class Game:
                     pg.time.set_timer(EXIT_APP, 5000)  # Quit game after 5 seconds
                 else:
                     self.message_display.show_message(f"Level {self.current_level} Start!", 2)
-                    
+
+            # Implementing gravity reversal
+            elif event.type == pg.KEYDOWN and event.key == pg.K_g:  # Press 'G' to reverse gravity
+                self.reverse_gravity()
+
     def run(self):
         '''Run the main game loop'''
         while True:
