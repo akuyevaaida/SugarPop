@@ -1,8 +1,8 @@
 #############################################################
 # Module Name: Sugar Pop Settings Module
 # Project: Sugar Pop Program
-# Date: Nov 17, 2024
-# By: Brett W. Huffman
+# Date: Dec 6, 2024
+# By: Brett W. Huffman & Aida Akuyeva
 # Description: The settings implementation of the sugar pop game
 #############################################################
 
@@ -20,9 +20,14 @@ MAX_TIME_STEP = 1.0 / FPS  # Simulation step
 FLOOR_COLLISION_TYPE = 1
 BOX_COLLISION_TYPE = 2
 
-
 # Level Info
 LEVEL_FILE_NAME = './levels/levelX.json'
+
+# Sound file paths
+SOUND_BUCKET_EXPLODE = "./sounds/bucket_explode.mp3"
+SOUND_SUGAR_ADD = "./sounds/sugar_add.mp3"
+SOUND_LEVEL_COMPLETE = "./sounds/level_complete.mp3"
+
 
 # User Defined Events
 START_FLOW = pg.USEREVENT + 1
