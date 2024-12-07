@@ -1,7 +1,7 @@
 #############################################################
 # Module Name: Sugar Pop Main Module
 # Project: Sugar Pop Program
-# Date: Nov 17, 2024
+# Date: Dec 6, 2024
 # By: Brett W. Huffman & Aida Akuyeva
 # Description: The main implementation of the sugar pop game
 #############################################################
@@ -43,9 +43,10 @@ class Game:
 
         self.drawing_lines = []
         self.sugar_grains = []
+        self.sugar_dropped = len(self.sugar_grains)
         self.buckets = []
         self.statics = []
-        self.total_sugar_count = None
+        self.total_sugar_count = None or 0
         self.level_spout_position = None
         self.level_grain_dropping = None
         self.mouse_down = False
@@ -173,45 +174,53 @@ class Game:
                 
             # Drop sugar if needed
             if self.level_grain_dropping:
-                # Create new sugar to drop
-                new_sugar = sugar_grain.sugar_grain(self.space, self.level_spout_position[0], self.level_spout_position[1], 0.1)
-                self.sugar_grains.append(new_sugar)
+                if len(self.sugar_grains) < self.total_sugar_count:
+                    # Create new sugar to drop
+                    new_sugar = sugar_grain.sugar_grain(self.space, self.level_spout_position[0], self.level_spout_position[1], 0.1)
+                    self.sugar_grains.append(new_sugar)
 
-                # Play the sugar add sound when sugar starts falling
-                self.sound.play_sound("sugar_add")
+                    # Play the sugar add sound when sugar starts falling
+                    self.sound.play_sound("sugar_add")   
+                else:
+                    self.level_grain_dropping = False # Stop dropping sugar
 
-                # Check if it's time to stop
-                if len(self.sugar_grains) >= self.total_sugar_count:
-                    self.level_grain_dropping = False
+            # Update the sugar dropped count
+            self.sugar_dropped = len(self.sugar_grains)
 
     def draw(self):
         '''Draw the overall game. Should call individual item draw() methods'''
         # Clear the screen
         self.screen.fill('black')
-
+        
         # Only show the intro screen if we haven't loaded a level yet
         if self.intro_image:
             self.screen.blit(self.intro_image, (0, 0))  # Draw the intro image
-    
-        for bucket in self.buckets:
-            bucket.draw(self.screen)
 
-        # Draw each sugar grain
-        for grain in self.sugar_grains:
-            grain.draw(self.screen)
+        else:
+            if not self.level_complete:
+                # Draw the buckets
+                for bucket in self.buckets:
+                    bucket.draw(self.screen)
 
-        # Draw the current dynamic line
-        if self.current_line is not None:
-            self.current_line.draw(self.screen)
+                # Draw each sugar grain
+                for grain in self.sugar_grains:
+                    grain.draw(self.screen)
+
+                # Draw the current dynamic line
+                if self.current_line is not None:
+                    self.current_line.draw(self.screen)
+                
+                # Draw the user-drawn lines
+                for line in self.drawing_lines:
+                    line.draw(self.screen)
+                    
+                # Draw any static items
+                for static in self.statics:
+                    static.draw(self.screen)
+
+                # Draw hud
+                self.hud.draw(self.screen, self.total_sugar_count, self.sugar_dropped, self.buckets, self.gravity_reversed, True)
         
-        # Draw the user-drawn lines
-        for line in self.drawing_lines:
-            line.draw(self.screen)
-            
-        # Draw any static items
-        for static in self.statics:
-            static.draw(self.screen)
-
         # Draw the nozzle (Remember to subtract y from the height)
         if self.level_spout_position:
             pg.draw.line(
@@ -222,9 +231,6 @@ class Game:
                 5
             )
         
-        # Draw gravity direction and HUD
-        self.hud.draw(self.screen, self.total_sugar_count, len(self.sugar_grains), self.buckets, self.gravity_reversed)
-
         # Show any messages needed        
         self.message_display.draw(self.screen)
 
