@@ -15,7 +15,7 @@ class Hud:
         self.font_color = font_color
         self.bg_color = bg_color  
         
-    def draw(self, screen, total_sugar_count, sugar_dropped, buckets, gravity_reversed, show_hud=True):
+    def draw(self, screen, total_sugar_count, sugar_dropped, level_number, buckets, gravity_reversed, show_hud=True):
         ''' Draw the HUD with round borders.'''
         if not show_hud:
             return  # Skip if Hud isn't displayed
@@ -32,13 +32,18 @@ class Hud:
         text_surface = self.font.render(f"Remaining Sugar: {remaining_sugar}/{total_sugar_count}", True, self.font_color)
         hud_surface.blit(text_surface, (10, y_offset))
 
+        # Draw Level Count
+        y_offset += 18
+        level_surface = self.font.render(f"Level: {level_number}", True, self.font_color)
+        hud_surface.blit(level_surface, (10, y_offset))
+
         # Draw Bucket Counts
-        y_offset += 20
+        y_offset += 18
         for index, bucket in enumerate(buckets):
             bucket_text = f"Bucket {index + 1}: {bucket.count}/{bucket.needed_sugar}"
             bucket_surface = self.font.render(bucket_text, True, self.font_color)
             hud_surface.blit(bucket_surface, (10, y_offset))
-            y_offset += 20
+            y_offset += 18
 
         # Display Gravity Direction
         if gravity_reversed:

@@ -1,8 +1,8 @@
 #############################################################
 # Module Name: Sugar Pop Bucket Module
 # Project: Sugar Pop Program
-# Date: Nov 17, 2024
-# By: Brett W. Huffman
+# Date: Dec 6, 2024
+# By: Brett W. Huffman & Aida Akuyeva
 # Description: The bucket implementation of the sugar pop game
 #############################################################
 
@@ -29,7 +29,6 @@ class Bucket:
         self.height = height / SCALE
         self.count = 0  # Counter for collected sugar grains
         self.needed_sugar = needed_sugar
-        self.freezed_sugar = []  # List to freezed sugar grains
 
         self.sound = Sound()
 
@@ -65,6 +64,7 @@ class Bucket:
         
         self.exploded = False  # Track if the bucket has exploded
 
+            
     def explode(self, grains):
         """
         Apply a radial force to all grains near the bucket and remove the bucket walls.
@@ -88,24 +88,18 @@ class Bucket:
             # Calculate the vector from the bucket center to the grain
             dx = grain_pos.x - bucket_center_x
             dy = grain_pos.y - bucket_center_y
-            distance = sqrt(dx**2 + dy**2)
+            distance = max(1, (dx ** 2 + dy ** 2) ** 0.5)
 
-            if distance < 2:  # Only affect grains within a certain radius
-                # Normalize the vector
-                if distance > 0:
-                    dx /= distance
-                    dy /= distance
+            force = 100 / distance  # Reduce force with distance
 
-                # Apply a radial impulse (adjust magnitude as needed)
-                impulse_magnitude = 20 / (distance + 0.1)  # Reduce force with distance
-                impulse = (dx * impulse_magnitude, dy * impulse_magnitude)
-                grain.body.apply_impulse_at_world_point(impulse, grain.body.position)
-
+            # Apply a radial impulse 
+            grain.body.apply_impulse_at_local_point((dx * force, dy * force))
+            
         # Remove the bucket walls
         self.space.remove(self.left_wall, self.right_wall, self.bottom_wall)
 
         self.exploded = True  # Mark the bucket as exploded
-        
+
     def draw(self, screen):
         """
         Draw the bucket with an open top on the Pygame screen.

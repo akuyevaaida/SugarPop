@@ -119,6 +119,12 @@ class Game:
         Check if all buckets have exploded.
         """
         return all(bucket.exploded for bucket in self.buckets)
+    
+    def reverse_gravity(self):
+        ''' Reverse the gravity when the key is pressed. '''
+        if self.gravity_reversed:
+            self.space.gravity = (0, -4.8)  # Gravity pointing down
+            self.gravity_reversed = False
 
     def update(self):
         '''Update the program physics'''
@@ -219,7 +225,7 @@ class Game:
                     static.draw(self.screen)
 
                 # Draw hud
-                self.hud.draw(self.screen, self.total_sugar_count, self.sugar_dropped, self.buckets, self.gravity_reversed, True)
+                self.hud.draw(self.screen, self.total_sugar_count, self.sugar_dropped, self.current_level, self.buckets, self.gravity_reversed, True)
         
         # Draw the nozzle (Remember to subtract y from the height)
         if self.level_spout_position:

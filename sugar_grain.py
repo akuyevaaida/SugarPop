@@ -1,8 +1,8 @@
 #############################################################
 # Module Name: Sugar Pop Sugar 'Grain' Module
 # Project: Sugar Pop Program
-# Date: Nov 17, 2024
-# By: Brett W. Huffman
+# Date: Dec 6, 2024
+# By: Brett W. Huffman & Aida Akuyeva
 # Description: The sugar grain implementation of the sugar pop game
 #############################################################
 import pygame as pg
